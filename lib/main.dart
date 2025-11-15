@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_note_view.dart';
+import 'note.dart';
 import 'note_detail_view.dart';
 
 // Warna-warna yang terinspirasi dari Duolingo
@@ -43,28 +44,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // Daftar catatan awal
-  final List<String> _notes = [
-    "Ini adalah catatan contoh pertama dibuat oleh saya (Miftah Firdaus)",
-    "Ini juga catatan buatan saya",
-    "Jangan lupa belajar Flutter hari ini!",
+  final List<Note> _notes = [
+    Note(title: "Contoh Catatan Pertama", content: "Ini adalah catatan contoh pertama dibuat oleh saya (Miftah Firdaus)"),
+    Note(title: "Catatan Buatan Saya", content: "Ini juga catatan buatan saya"),
+    Note(title: "Belajar Flutter", content: "Jangan lupa belajar Flutter hari ini!"),
   ];
 
   // Fungsi untuk menavigasi ke halaman tambah catatan
   void _navigateToAddNote() async {
-    final String? newNote = await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddNoteView()),
     );
 
-    if (newNote != null && newNote.isNotEmpty) {
+    if (result != null && result is Map<String, String>) {
       setState(() {
-        _notes.add(newNote);
+        _notes.add(Note(title: result['title']!, content: result['content']!));
       });
     }
   }
 
   // Fungsi untuk menavigasi ke halaman detail catatan
-  void _navigateToDetailNote(String note) {
+  void _navigateToDetailNote(Note note) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => NoteDetailView(note: note)),
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Widget untuk membuat card catatan yang stylish
-  Widget _buildNoteCard(String note) {
+  Widget _buildNoteCard(Note note) {
     return Card(
       elevation: 2.0,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -124,11 +125,23 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(width: 16.0),
               // Teks catatan
               Expanded(
-                child: Text(
-                  note,
-                  style: const TextStyle(fontSize: 16.0, color: textColor),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      note.title,
+                      style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: textColor),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      note.content,
+                      style: const TextStyle(fontSize: 16.0, color: textColor),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 8.0),

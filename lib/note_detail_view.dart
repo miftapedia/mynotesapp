@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'note.dart';
 
 // Halaman untuk menampilkan detail satu catatan
 class NoteDetailView extends StatelessWidget {
-  final String note;
+  final Note note;
 
   const NoteDetailView({Key? key, required this.note}) : super(key: key);
 
@@ -16,9 +17,9 @@ class NoteDetailView extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Detail Catatan',
-          style: TextStyle(
+        title: Text(
+          note.title,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -43,7 +44,7 @@ class NoteDetailView extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    note,
+                    note.content,
                     style: const TextStyle(fontSize: 18.0, color: textColor),
                   ),
                 ),
