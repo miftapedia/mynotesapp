@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'add_note_view.dart';
+import 'note_detail_view.dart';
 
+// Warna-warna yang terinspirasi dari Duolingo
+const primaryColor = Color(0xFF58CC02);
+const backgroundColor = Color(0xFFF7F7F7);
+const textColor = Color(0xFF4B4B4B);
+
+// Menjalankan aplikasi
 void main() {
   runApp(const MyNotesApp());
 }
 
+// Widget utama aplikasi
 class MyNotesApp extends StatelessWidget {
   const MyNotesApp({Key? key}) : super(key: key);
 
@@ -12,15 +21,19 @@ class MyNotesApp extends StatelessWidget {
     return MaterialApp(
       title: 'MyNotesApp',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: primaryColor,
+        scaffoldBackgroundColor: backgroundColor,
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+        useMaterial3: true,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const HomePage(),
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false, // Menghilangkan banner debug
     );
   }
 }
 
+// Halaman utama aplikasi, sekarang menjadi daftar catatan
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -29,54 +42,100 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _nameController = TextEditingController();
+  // Daftar catatan awal
+  final List<String> _notes = [
+    "Ini adalah catatan contoh pertama dibuat oleh saya (Miftah Firdaus)",
+    "Ini juga catatan buatan saya",
+    "Jangan lupa belajar Flutter hari ini!",
+  ];
 
-  String _displayName = "";
+  // Fungsi untuk menavigasi ke halaman tambah catatan
+  void _navigateToAddNote() async {
+    final String? newNote = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddNoteView()),
+    );
 
-  
-  void _updateView() {
-    setState(() {
-      _displayName = _nameController.text;
-    });
+    if (newNote != null && newNote.isNotEmpty) {
+      setState(() {
+        _notes.add(newNote);
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
+  // Fungsi untuk menavigasi ke halaman detail catatan
+  void _navigateToDetailNote(String note) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NoteDetailView(note: note)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MyNotesApp'),
+        title: const Text(
+          'My Notes',
+          style: TextStyle(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, 
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Masukkan Nama Anda',
-                border: OutlineInputBorder(),
+      body: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        itemCount: _notes.length,
+        itemBuilder: (context, index) {
+          final note = _notes[index];
+          // Widget custom untuk setiap item catatan
+          return _buildNoteCard(note);
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddNote,
+        tooltip: 'Tambah Catatan',
+        backgroundColor: primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  // Widget untuk membuat card catatan yang stylish
+  Widget _buildNoteCard(String note) {
+    return Card(
+      elevation: 2.0,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: InkWell(
+        onTap: () => _navigateToDetailNote(note),
+        borderRadius: BorderRadius.circular(12.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              // Ikon untuk dekorasi
+              const Icon(Icons.article_outlined, color: primaryColor, size: 28),
+              const SizedBox(width: 16.0),
+              // Teks catatan
+              Expanded(
+                child: Text(
+                  note,
+                  style: const TextStyle(fontSize: 16.0, color: textColor),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: _updateView, 
-              child: const Text('Ubah Tampilan'),
-            ),
-            const SizedBox(height: 30),
-
-            Text(
-              _displayName.isEmpty ? '' : 'Halo, $_displayName!',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ],
+              const SizedBox(width: 8.0),
+              // Ikon panah
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
         ),
       ),
     );
